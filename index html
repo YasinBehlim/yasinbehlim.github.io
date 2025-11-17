@@ -1,0 +1,159 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Free Crypto 3-in-1 Tool: Live price checker, profit/loss calculator & crypto to USD converter.">
+  <title>Crypto 3-in-1 Calculator</title>
+  <meta name="google-adsense-account" content="ca-pub-3051797649580954">
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3051797649580954" crossorigin="anonymous"></script>
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KP903HTNPT"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KP903HTNPT', {anonymize_ip: true});
+  </script>
+
+  <!-- Cookie Consent -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        palette: { popup: { background: "#161b22" }, button: { background: "#238636" } },
+        content: { message: "We use cookies for analytics & ads.", dismiss: "OK", link: "Privacy", href: "privacy.html" }
+      })
+    });
+  </script>
+
+  <style>
+    :root { --bg: #0d1117; --panel: #161b22; --text: #fff; --accent: #238636; --muted: #8b949e; }
+    [data-theme=light] { --bg: #f6f8fa; --panel: #fff; --text: #0d1117; --accent: #0a7a4b; --muted: #57606a; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui; padding: 20px; min-height: 100vh; }
+    .container { max-width: 960px; margin: auto; }
+    header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    nav { margin: 20px 0; text-align: center; }
+    nav a { color: var(--muted); margin: 0 12px; text-decoration: none; }
+    .box { background: var(--panel); border-radius: 12px; padding: 20px; margin: 15px 0; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+    input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; background: #0001; color: var(--text); font-size: 1rem; }
+    button { padding: 12px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media(max-width:640px) { .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>Crypto 3-in-1 Calculator</h1>
+      <p style="margin:4px 0 0;color:var(--muted);">Live price • Profit calculator • USD converter</p>
+    </div>
+    <button onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'dark':'light'">Theme</button>
+  </header>
+
+  <nav>
+    <a href="/">Home</a> | <a href="about.html">About</a> | <a href="privacy.html">Privacy</a> | 
+    <a href="disclaimer.html">Disclaimer</a> | <a href="contact.html">Contact</a>
+  </nav>
+
+  <!-- AdSense -->
+  <div class="box" style="text-align:center;">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3051797649580954" 
+         data-ad-slot="872965908" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
+  <!-- Price Checker -->
+  <div class="box">
+    <h2>Live Price Checker</h2>
+    <input type="text" id="s" placeholder="Search coin...">
+    <select id="coin"></select>
+    <button onclick="check()">Check Price</button>
+    <p id="price" style="font-size:1.3rem;margin-top:10px;"></p>
+  </div>
+
+  <!-- Profit Calculator -->
+  <div class="box">
+    <h2>Profit / Loss Calculator</h2>
+    <div class="row">
+      <input type="number" step="any" id="buy" placeholder="Buy Price (USD)">
+      <input type="number" step="any" id="sell" placeholder="Sell Price (USD)">
+    </div>
+    <input type="number" step="any" id="amt" placeholder="Amount of coins" style="margin-top:12px;">
+    <button onclick="profit()">Calculate</button>
+    <p id="prof" style="font-size:1.3rem;margin-top:10px;"></p>
+  </div>
+
+  <!-- Converter -->
+  <div class="box">
+    <h2>Crypto → USD Converter</h2>
+    <div class="row">
+      <input type="number" step="any" id="price" placeholder="Coin price (USD)">
+      <input type="number" step="any" id="qty" placeholder="Amount of coins">
+    </div>
+    <button onclick="convert()">Convert</button>
+    <p id="total" style="font-size:1.3rem;margin-top:10px;"></p>
+  </div>
+
+  <!-- Binance Referral -->
+  <div style="text-align:center;margin:40px 0;padding:25px;background:#f0b90b;border-radius:16px;">
+    <h3 style="margin:0 0 10px;color:#000;">Get Up to <span style="color:#ff0000;font-size:1.4em;">$100 Bonus</span> on Binance!</h3>
+    <p style="margin:8px 0;color:#333;">Exclusive for calculator users – start trading now</p>
+    <a href="https://www.binance.com/referral/earn-together/refer2earn-usdc/claim?hl=en&ref=GRO_28502_0RUEI&utm_source=default" target="_blank" 
+       style="display:inline-block;padding:14px 32px;background:#000;color:#f0b90b;font-weight:bold;font-size:1.2rem;border-radius:12px;text-decoration:none;">
+       → Claim $100 Bonus ←
+    </a>
+    <p style="margin:10px 0 0;font-size:0.9rem;color:#666;">Powered by @AminYasin37894</p>
+  </div>
+</div>
+
+<script>
+  let all = [];
+  fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=250')
+    .then(r => r.json())
+    .then(d => { all = d; list(d); });
+
+  function list(c) {
+    const s = document.getElementById('coin');
+    s.innerHTML = '';
+    c.forEach(x => {
+      let o = document.createElement('option');
+      o.value = x.id;
+      o.textContent = `${x.name} (${x.symbol.toUpperCase()})`;
+      s.appendChild(o);
+    });
+  }
+
+  document.getElementById('s').oninput = e => {
+    let q = e.target.value.toLowerCase();
+    list(all.filter(x => x.name.toLowerCase().includes(q) || x.symbol.includes(q)));
+  };
+
+  function check() {
+    let id = document.getElementById('coin').value;
+    fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`)
+      .then(r => r.json())
+      .then(d => document.getElementById('price').innerHTML = `$${d[id].usd.toLocaleString()}`);
+  }
+
+  function profit() {
+    let b = +document.getElementById('buy').value;
+    let s = +document.getElementById('sell').value;
+    let a = +document.getElementById('amt').value;
+    let p = (s - b) * a;
+    document.getElementById('prof').innerHTML = `Profit: <strong style="color:${p >= 0 ? '#238636' : '#e5534b'}">$${p.toFixed(2)}</strong>`;
+  }
+
+  function convert() {
+    let p = +document.getElementById('price').value;
+    let q = +document.getElementById('qty').value;
+    document.getElementById('total').innerHTML = `Total: <strong style="color:#238636">$${(p * q).toFixed(2)}</strong>`;
+  }
+</script>
+</body>
+</html>
