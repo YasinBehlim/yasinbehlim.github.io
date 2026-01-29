@@ -131,9 +131,12 @@ let displayedCoins = [];
 // Fetch top 50 coins using Codetabs proxy (works on GitHub Pages)
 fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50'))
   .then(r => r.json())
-  .then(coins => {
+  .then(data => {
+    // Codetabs sometimes wraps response in "body"
+    let coins = data.body ? JSON.parse(data.body) : data;
+    if (!Array.isArray(coins)) throw new Error("Invalid coin data format");
     allCoins = coins;
-    displayedCoins = allCoins.slice(0,10); // show top 10 by default
+    displayedCoins = allCoins.slice(0,10); // top 10 by default
     renderCoins(displayedCoins);
   })
   .catch(e => {
