@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Free professional crypto calculators. Check live prices, calculate profit & loss, convert crypto to USD, and calculate position size instantly.">
+<meta name="description" content="Free professional crypto calculators. Check live prices, calculate profit & loss with fees, convert crypto to USD, and calculate position size instantly.">
 <title>Crypto Calculators – Coin2Cash</title>
 
 <style>
@@ -123,12 +123,13 @@ footer{
   <div id="price" class="result"></div>
 </div>
 
-<!-- PROFIT / LOSS -->
+<!-- PROFIT / LOSS WITH FEES & ROI -->
 <div class="box">
-  <h3>Profit / Loss Calculator</h3>
+  <h3>Profit / Loss Calculator (with Fees & ROI)</h3>
   <input type="number" id="buy" placeholder="Buy Price (USD)">
   <input type="number" id="sell" placeholder="Sell Price (USD)">
   <input type="number" id="amt" placeholder="Coin Amount">
+  <input type="number" id="fee" placeholder="Exchange Fee (%) e.g., 0.1" step="0.01">
   <button onclick="profit()">Calculate</button>
   <div id="prof" class="result"></div>
 </div>
@@ -198,11 +199,12 @@ function check(){
   .catch(()=>priceDiv.textContent = "Error fetching price");
 }
 
-// PROFIT / LOSS CALCULATOR
+// PROFIT / LOSS WITH FEES & ROI
 function profit(){
   const buy = +document.getElementById('buy').value;
   const sell = +document.getElementById('sell').value;
   const amt = +document.getElementById('amt').value;
+  const feePercent = +document.getElementById('fee').value || 0;
   const profDiv = document.getElementById('prof');
 
   if(buy<=0 || sell<=0 || amt<=0){
@@ -210,8 +212,18 @@ function profit(){
     return;
   }
 
-  const p = (sell - buy) * amt;
-  profDiv.innerHTML = `Profit: <strong style="color:${p>=0?'#238636':'#e5534b'}">$${p.toFixed(2)}</strong>`;
+  const totalBuy = buy * amt;
+  const totalSell = sell * amt;
+  const fee = feePercent / 100;
+  const totalFee = totalBuy * fee + totalSell * fee;
+  const netProfit = totalSell - totalBuy - totalFee;
+  const roi = (netProfit / totalBuy) * 100;
+
+  profDiv.innerHTML = `
+    Net Profit: <strong style="color:${netProfit>=0?'#238636':'#e5534b'}">$${netProfit.toFixed(2)}</strong><br>
+    ROI: <strong style="color:${roi>=0?'#238636':'#e5534b'}">${roi.toFixed(2)}%</strong><br>
+    Total Fees Paid: <strong style="color:#f0b90b">$${totalFee.toFixed(2)}</strong>
+  `;
 }
 
 // CONVERTER
