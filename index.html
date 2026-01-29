@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crypto Learning Hub</title>
 <meta name="description" content="Interactive crypto learning tools: calculators, converters, live prices.">
-
 <style>
 :root {
   --bg:#0d1117;
@@ -16,10 +15,8 @@
 }
 body { margin:0; font-family:system-ui; background:var(--bg); color:var(--text); }
 a { text-decoration:none; }
-
 /* Container */
 .container { max-width:960px; margin:auto; padding:20px; }
-
 /* Navigation as buttons */
 nav {
   text-align:center;
@@ -40,20 +37,18 @@ nav a:hover {
   color:#fff;
   transform:scale(1.05);
 }
-
 /* Live Price Bar */
-#livePriceBar { 
-  background:var(--panel); 
-  padding:10px; 
-  display:flex; 
-  flex-wrap:wrap; 
-  justify-content:center; 
-  gap:20px; 
-  border-radius:12px; 
-  margin-bottom:40px; 
+#livePriceBar {
+  background:var(--panel);
+  padding:10px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:20px;
+  border-radius:12px;
+  margin-bottom:40px;
 }
 .coin { font-weight:600; }
-
 /* Hero Section */
 header {
   display:flex;
@@ -76,20 +71,29 @@ header .quote {
   font-style:italic;
   margin-top:10px;
 }
-
+/* Disclaimer banner */
+.disclaimer {
+  background:#332700;
+  color:#ffcc80;
+  padding:12px 20px;
+  text-align:center;
+  font-size:1rem;
+  border-radius:8px;
+  margin:0 20px 30px;
+  max-width:960px;
+  margin-left:auto;
+  margin-right:auto;
+}
 /* Sections */
 section { padding:40px 20px; text-align:center; }
 section h2 { font-size:2rem; margin-bottom:20px; }
-
 /* Footer */
 footer { text-align:center; padding:20px; font-size:0.9rem; color:var(--muted); border-top:1px solid #222; }
-
 /* Inputs */
 input { padding:6px 10px; border-radius:6px; border:none; background:#0001; color:var(--text); margin-left:10px; }
 </style>
 </head>
 <body>
-
 <!-- Navigation -->
 <nav>
   <a href="index.html">Home</a>
@@ -109,9 +113,14 @@ input { padding:6px 10px; border-radius:6px; border:none; background:#0001; colo
 <!-- Hero Section -->
 <header>
   <h1>Crypto Learning Hub</h1>
-  <p>Learn crypto trading with interactive tools: Profit/Loss Calculator, USD Converter, Position Size Calculator, and Live Prices.</p>
-  <div class="quote">“Trade smart. Learn fast. Grow your crypto journey.”</div>
+  <p>Free interactive tools to understand crypto trading mechanics: accurate profit/loss tracking, USD conversions, position sizing for risk control, and live market data.</p>
+  <div class="quote">“Trade smart. Learn fast. Protect your capital. Grow your journey.”</div>
 </header>
+
+<!-- Disclaimer Banner -->
+<div class="disclaimer">
+  ⚠️ These are educational tools only — NOT financial advice. Crypto trading involves high risk of total capital loss. Always verify calculations independently and trade responsibly.
+</div>
 
 <!-- Get Started Section -->
 <section>
@@ -121,49 +130,66 @@ input { padding:6px 10px; border-radius:6px; border:none; background:#0001; colo
 
 <!-- Footer -->
 <footer>
-  &copy; 2026 Crypto Learning Hub • All rights reserved
+  <p>⚠️ Educational purposes only – not financial advice. Use at your own risk.</p>
+  <p>&copy; 2026 Crypto Learning Hub • Contact: <a href="contact.html" style="color:var(--muted);">yasinamin839@gmail.com</a></p>
 </footer>
 
 <script>
 let allCoins = [];
 let displayedCoins = [];
 
-// Fetch top 50 coins using Codetabs proxy (works on GitHub Pages)
-fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50'))
-  .then(r => r.json())
+// Try direct CoinGecko API first (often works on GH Pages for low volume)
+fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&sparkline=false&price_change_percentage=24h')
+  .then(r => {
+    if (!r.ok) throw new Error('Network response was not ok: ' + r.status);
+    return r.json();
+  })
   .then(data => {
-    // Codetabs sometimes wraps response in "body"
-    let coins = data.body ? JSON.parse(data.body) : data;
-    if (!Array.isArray(coins)) throw new Error("Invalid coin data format");
-    allCoins = coins;
-    displayedCoins = allCoins.slice(0,10); // top 10 by default
+    allCoins = data;
+    displayedCoins = allCoins.slice(0, 10);
     renderCoins(displayedCoins);
   })
   .catch(e => {
-    document.getElementById('livePriceBar').textContent = "Failed to load coins";
-    console.error(e);
+    console.error('Direct fetch failed:', e);
+    // Fallback: show message but keep search input
+    const bar = document.getElementById('livePriceBar');
+    bar.innerHTML = `
+      <input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">
+      <div style="color:#ff9800; padding:8px; font-weight:500; text-align:center; width:100%;">
+        Live prices temporarily unavailable (API/network issue). Refresh page or try later.
+      </div>
+    `;
   });
 
-// Render coins in live price bar
-function renderCoins(coins){
+// Render coins with price + 24h change
+function renderCoins(coins) {
   const bar = document.getElementById('livePriceBar');
   bar.innerHTML = '<input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">';
+  
   coins.forEach(c => {
+    const change = c.price_change_percentage_24h;
+    const changeColor = change >= 0 ? '#26a69a' : '#ef5350';
+    const changeText = change >= 0 ? `+${change.toFixed(2)}%` : change.toFixed(2) + '%';
+    
     let div = document.createElement('div');
     div.className = 'coin';
-    div.textContent = `${c.name}: $${c.current_price.toLocaleString()}`;
+    div.innerHTML = `
+      <span style="font-weight:600;">${c.symbol.toUpperCase()}</span>: 
+      $${c.current_price.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+      <span style="color:${changeColor}; font-size:0.9em; margin-left:6px;">${changeText}</span>
+    `;
     bar.appendChild(div);
   });
 }
 
-// Filter coins by search input
-function filterCoins(){
+function filterCoins() {
   const query = document.getElementById('searchCoin').value.toLowerCase();
-  if(!allCoins) return;
-  displayedCoins = allCoins.filter(c => c.name.toLowerCase().includes(query) || c.symbol.toLowerCase().includes(query));
-  renderCoins(displayedCoins.slice(0,10));
+  if (!allCoins.length) return;
+  displayedCoins = allCoins.filter(c => 
+    c.name.toLowerCase().includes(query) || c.symbol.toLowerCase().includes(query)
+  );
+  renderCoins(displayedCoins.slice(0, 10)); // show up to 10 results
 }
 </script>
-
 </body>
 </html>
