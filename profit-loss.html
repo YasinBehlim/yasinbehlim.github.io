@@ -5,140 +5,257 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profit/Loss Calculator - Crypto Learning Hub</title>
   <style>
-    :root { --bg:#0d1117; --panel:#161b22; --text:#fff; --accent:#238636; --muted:#8b949e; --danger:#e5534b; --success:#238636; }
-    body { margin:0; font-family:system-ui, Arial, sans-serif; background:var(--bg); color:var(--text); padding:20px; min-height:100vh; }
-    nav { background:var(--panel); text-align:center; padding:12px 0; position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.5); }
-    nav a { color:var(--text); margin:0 12px; text-decoration:none; font-weight:500; transition:.3s; }
-    nav a.active { color:var(--accent); font-weight:bold; border-bottom:2px solid var(--accent); padding-bottom:4px; }
-    nav a:hover { color:#2fa85f; }
-    h1 { color:var(--accent); text-align:center; margin:20px 0; }
-    .tagline { text-align:center; color:var(--muted); margin-bottom:20px; font-style:italic; }
-    .card { background:var(--panel); padding:24px; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,0.4); margin:20px auto; max-width:600px; }
-    .disclaimer { background:#332700; color:#ffcc80; padding:12px; text-align:center; border-radius:8px; margin:20px auto; max-width:600px; font-size:0.95rem; }
-    input, select, button { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:none; font-size:1rem; box-sizing:border-box; }
-    input, select { background:#0001; color:var(--text); }
-    button { background:var(--accent); color:#fff; font-weight:bold; cursor:pointer; transition:0.2s; }
-    button:hover { background:#2fa85f; }
+    :root {
+      --bg:#0d1117;
+      --panel:#161b22;
+      --text:#fff;
+      --muted:#8b949e;
+      --accent:#238636;
+    }
+    body { margin:0; font-family:system-ui; background:var(--bg); color:var(--text); }
+    a { text-decoration:none; }
+
+    /* Navigation - same as homepage */
+    nav {
+      text-align:center;
+      margin:20px 0;
+    }
+    nav a {
+      display:inline-block;
+      margin:0 10px;
+      padding:10px 18px;
+      border-radius:8px;
+      background:var(--panel);
+      color:var(--text);
+      font-weight:600;
+      transition: all 0.3s ease;
+    }
+    nav a:hover {
+      background:var(--accent);
+      color:#fff;
+      transform:scale(1.05);
+    }
+    nav a.active {
+      background:var(--accent);
+      color:#fff;
+    }
+
+    /* Live Price Bar - same as homepage */
+    #livePriceBar {
+      background:var(--panel);
+      padding:10px;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:20px;
+      border-radius:12px;
+      margin:0 20px 30px;
+      max-width:960px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    .coin { font-weight:600; }
+
+    /* Hero / Title */
+    header {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      padding:40px 20px;
+      flex-direction:column;
+    }
+    header h1 { font-size:2.8rem; margin-bottom:10px; color:var(--accent); }
+    .tagline {
+      font-size:1.2rem;
+      color:var(--muted);
+      max-width:700px;
+      margin:0 auto;
+      font-style:italic;
+    }
+
+    /* Disclaimer */
+    .disclaimer {
+      background:#332700;
+      color:#ffcc80;
+      padding:12px 20px;
+      text-align:center;
+      font-size:1rem;
+      border-radius:8px;
+      margin:0 20px 30px;
+      max-width:960px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    /* Calculator Card */
+    .calculator-card {
+      background:var(--panel);
+      padding:24px;
+      border-radius:16px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.4);
+      margin:20px auto;
+      max-width:600px;
+    }
+    .calculator-card input, .calculator-card select {
+      width:100%;
+      padding:12px;
+      margin:10px 0;
+      border-radius:8px;
+      border:none;
+      background:#0001;
+      color:var(--text);
+      font-size:1rem;
+    }
+    .calculator-card button {
+      width:100%;
+      padding:12px;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:10px;
+    }
+    .calculator-card button:hover { background:#2fa85f; }
     .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     @media(max-width:640px) { .row { grid-template-columns:1fr; } }
-    #result { font-size:1.3rem; font-weight:600; margin-top:15px; text-align:center; }
-    .learning { background:var(--panel); padding:20px; border-radius:12px; margin:20px auto; max-width:600px; border:1px solid #333; }
+
+    /* Learning section */
+    .learning {
+      background:var(--panel);
+      padding:20px;
+      border-radius:12px;
+      margin:20px auto;
+      max-width:960px;
+      border:1px solid #333;
+    }
     .learning h3 { color:var(--accent); margin-top:0; }
-    #livePrice { font-size:1.2rem; margin-top:12px; text-align:center; }
+
+    /* Footer */
+    footer {
+      text-align:center;
+      padding:20px;
+      font-size:0.9rem;
+      color:var(--muted);
+      border-top:1px solid #222;
+      margin-top:40px;
+    }
   </style>
 </head>
 <body>
 
-  <nav>
-    <a href="index.html">Home</a> |
-    <a href="profit-loss.html" class="active">Profit/Loss</a> |
-    <a href="position-size.html">Position Size</a> |
-    <a href="usd-converter.html">USD Converter</a> |
-    <a href="about.html">About</a> |
-    <a href="contact.html">Contact</a>
-  </nav>
+<!-- Navigation - same style as homepage -->
+<nav>
+  <a href="index.html">Home</a>
+  <a href="profit-loss.html" class="active">Profit/Loss Calculator</a>
+  <a href="usd-converter.html">USD Converter</a>
+  <a href="position-size.html">Position Size Calculator</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+</nav>
 
+<!-- Live Price Bar - identical to homepage -->
+<div id="livePriceBar">
+  Loading top coins...
+  <input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">
+</div>
+
+<!-- Header / Title -->
+<header>
   <h1>Profit / Loss Calculator</h1>
   <p class="tagline">Calculate your potential gains or losses – spot or leveraged trades</p>
+</header>
 
-  <!-- Disclaimer -->
-  <div class="disclaimer">
-    ⚠️ Educational tool only – NOT financial advice. Crypto trading carries high risk of loss. Verify all numbers yourself. Fees & slippage not always included.
-  </div>
+<!-- Disclaimer -->
+<div class="disclaimer">
+  ⚠️ Educational tools only — NOT financial advice. Crypto trading involves high risk of total capital loss. Always verify calculations independently and trade responsibly.
+</div>
 
-  <!-- Live Price Card -->
-  <div class="card">
-    <h2 style="color:var(--accent); margin-bottom:16px;">Live Coin Price (CoinGecko)</h2>
-    <input type="text" id="coinSearch" placeholder="Search coin (e.g. bitcoin)...">
-    <select id="coinDropdown"><option value="">Select a coin...</option></select>
-    <button onclick="fetchPrice()">Check Current Price</button>
-    <p id="livePrice">Price will appear here...</p>
+<!-- Profit/Loss Calculator -->
+<div class="calculator-card">
+  <h2>Calculate Profit / Loss</h2>
+  <div class="row">
+    <input type="number" step="any" min="0" id="buy" placeholder="Entry / Buy Price (USD)" required>
+    <input type="number" step="any" min="0" id="sell" placeholder="Exit / Sell Price (USD)" required>
   </div>
+  <input type="number" step="any" min="0" id="amt" placeholder="Amount / Quantity of coins" required>
+  <input type="number" step="any" min="0" id="fees" placeholder="Total fees (USD) – optional" value="0">
+  <button onclick="calculateProfit()">Calculate PnL</button>
+  <div id="result" style="font-size:1.3rem; font-weight:600; margin-top:20px; text-align:center;"></div>
+</div>
 
-  <!-- Profit/Loss Calculator -->
-  <div class="card">
-    <h2>Calculate Profit / Loss</h2>
-    <div class="row">
-      <input type="number" step="any" min="0" id="buy" placeholder="Entry / Buy Price (USD)" required>
-      <input type="number" step="any" min="0" id="sell" placeholder="Exit / Sell Price (USD)" required>
-    </div>
-    <input type="number" step="any" min="0" id="amt" placeholder="Amount / Quantity of coins" required>
-    <input type="number" step="any" min="0" id="fees" placeholder="Total fees (USD) – optional" value="0">
-    <button onclick="calculateProfit()">Calculate PnL</button>
-    <div id="result"></div>
-  </div>
+<!-- Learning Section -->
+<div class="learning">
+  <h3>How Profit & Loss Works (Quick Guide)</h3>
+  <p><strong>Spot trading (no leverage):</strong> PnL = (Sell - Buy) × Quantity - Fees</p>
+  <p><strong>Futures / Leveraged trades:</strong> PnL = (Sell - Buy) × Quantity × Leverage - Fees</p>
+  <p><strong>Return %:</strong> (PnL / (Buy Price × Quantity)) × 100%</p>
+  <p>Always include exchange fees, funding rates (for perps), and potential slippage in real trades.</p>
+</div>
 
-  <!-- Learning Section -->
-  <div class="learning">
-    <h3>How Profit & Loss Works (Quick Guide)</h3>
-    <p><strong>Spot trading (no leverage):</strong> PnL = (Sell Price - Buy Price) × Quantity - Fees</p>
-    <p><strong>Futures / Leveraged:</strong> PnL = (Sell Price - Buy Price) × Quantity × Leverage - Fees<br>
-    (Positive = profit, negative = loss. Watch for funding fees in perps.)</p>
-    <p><strong>% Return:</strong> (PnL / (Buy Price × Quantity)) × 100%</p>
-    <p>Use this to preview trades before executing on Binance, Bybit, etc. Always account for slippage and exchange fees in real trading.</p>
-  </div>
+<!-- Footer -->
+<footer>
+  <p>⚠️ Educational purposes only – not financial advice. Use at your own risk.</p>
+  <p>&copy; 2026 Crypto Learning Hub • Contact: <a href="contact.html" style="color:var(--muted);">yasinamin839@gmail.com</a></p>
+</footer>
 
 <script>
+// Live price bar logic - same as homepage
 let allCoins = [];
+let displayedCoins = [];
 
-// Fetch top coins for dropdown
-fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1')
+fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&sparkline=false&price_change_percentage=24h')
   .then(r => {
-    if (!r.ok) throw new Error('Failed to fetch coins');
+    if (!r.ok) throw new Error('Network response was not ok: ' + r.status);
     return r.json();
   })
   .then(data => {
     allCoins = data;
-    populateCoinDropdown(allCoins);
+    displayedCoins = allCoins.slice(0, 10);
+    renderCoins(displayedCoins);
   })
   .catch(e => {
-    console.error('Coin fetch error:', e);
-    document.getElementById('livePrice').innerHTML = '<span style="color:#ff9800;">Failed to load coins list. Try refreshing.</span>';
+    console.error('CoinGecko fetch error:', e);
+    document.getElementById('livePriceBar').innerHTML = `
+      <input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">
+      <div style="color:#ff9800; padding:8px; font-weight:500; text-align:center; width:100%;">
+        Live prices temporarily unavailable. Refresh or try later.
+      </div>
+    `;
   });
 
-function populateCoinDropdown(coins) {
-  const dd = document.getElementById('coinDropdown');
-  dd.innerHTML = '<option value="">Select a coin...</option>';
+function renderCoins(coins) {
+  const bar = document.getElementById('livePriceBar');
+  bar.innerHTML = '<input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">';
+  
   coins.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = `${c.name} (${c.symbol.toUpperCase()})`;
-    dd.appendChild(opt);
+    const change = c.price_change_percentage_24h;
+    const changeColor = change >= 0 ? '#26a69a' : '#ef5350';
+    const changeText = change >= 0 ? `+${change.toFixed(2)}%` : change.toFixed(2) + '%';
+    
+    let div = document.createElement('div');
+    div.className = 'coin';
+    div.innerHTML = `
+      <span style="font-weight:600;">${c.symbol.toUpperCase()}</span>: 
+      $${c.current_price.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+      <span style="color:${changeColor}; font-size:0.9em; margin-left:6px;">${changeText}</span>
+    `;
+    bar.appendChild(div);
   });
 }
 
-// Search filter for dropdown
-document.getElementById('coinSearch').addEventListener('input', e => {
-  const q = e.target.value.toLowerCase();
-  const filtered = allCoins.filter(c => 
-    c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q)
+function filterCoins() {
+  const query = document.getElementById('searchCoin').value.toLowerCase();
+  if (!allCoins.length) return;
+  displayedCoins = allCoins.filter(c => 
+    c.name.toLowerCase().includes(query) || c.symbol.toLowerCase().includes(query)
   );
-  populateCoinDropdown(filtered);
-});
-
-function fetchPrice() {
-  const coinId = document.getElementById('coinDropdown').value;
-  if (!coinId) {
-    document.getElementById('livePrice').textContent = 'Please select a coin first.';
-    return;
-  }
-  fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`)
-    .then(r => {
-      if (!r.ok) throw new Error('Price fetch failed');
-      return r.json();
-    })
-    .then(d => {
-      const price = d[coinId]?.usd;
-      document.getElementById('livePrice').innerHTML = price 
-        ? `Current price: <strong style="color:var(--success);">$${price.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:6})}</strong>`
-        : 'Price not available';
-    })
-    .catch(e => {
-      console.error(e);
-      document.getElementById('livePrice').innerHTML = '<span style="color:#ff9800;">Unable to fetch price. API may be limited.</span>';
-    });
+  renderCoins(displayedCoins.slice(0, 10));
 }
 
+// PnL Calculation
 function calculateProfit() {
   const buy = parseFloat(document.getElementById('buy').value);
   const sell = parseFloat(document.getElementById('sell').value);
@@ -146,7 +263,7 @@ function calculateProfit() {
   const fees = parseFloat(document.getElementById('fees').value) || 0;
 
   if (isNaN(buy) || isNaN(sell) || isNaN(amt) || buy <= 0 || sell <= 0 || amt <= 0) {
-    document.getElementById('result').innerHTML = '<span style="color:#ff9800;">Please enter valid positive numbers for all required fields.</span>';
+    document.getElementById('result').innerHTML = '<span style="color:#ff9800;">Please fill all required fields with valid positive numbers.</span>';
     return;
   }
 
@@ -154,7 +271,7 @@ function calculateProfit() {
   const invested = buy * amt;
   const percent = invested > 0 ? (pnl / invested) * 100 : 0;
 
-  const color = pnl >= 0 ? 'var(--success)' : 'var(--danger)';
+  const color = pnl >= 0 ? '#238636' : '#e5534b';
   const sign = pnl >= 0 ? '+' : '';
 
   document.getElementById('result').innerHTML = `
