@@ -59,11 +59,11 @@ button{padding:12px 20px;background:var(--accent);color:#fff;border:none;border-
 <script>
 let allCoins = [];
 
-// Use CORS proxy to fetch coins list
+// Fetch coin list using CORS proxy and parse correctly
 fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=250'))
   .then(r => r.json())
   .then(data => {
-    allCoins = JSON.parse(data.contents);
+    allCoins = JSON.parse(data.contents); // <-- now it's an array
     populateCoinList(allCoins);
   })
   .catch(e => console.error("Error fetching coins:", e));
@@ -72,6 +72,7 @@ fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.co
 function populateCoinList(coins){
   const select = document.getElementById('coinList');
   select.innerHTML = '';
+  if(!Array.isArray(coins)) return;
   coins.forEach(c => {
     let option = document.createElement('option');
     option.value = c.id;
@@ -83,7 +84,9 @@ function populateCoinList(coins){
 // Filter coins on search
 document.getElementById('searchCoin').oninput = e => {
   let query = e.target.value.toLowerCase();
-  populateCoinList(allCoins.filter(c => c.name.toLowerCase().includes(query) || c.symbol.includes(query)));
+  if(Array.isArray(allCoins)){
+    populateCoinList(allCoins.filter(c => c.name.toLowerCase().includes(query) || c.symbol.includes(query)));
+  }
 }
 
 // Check live price
