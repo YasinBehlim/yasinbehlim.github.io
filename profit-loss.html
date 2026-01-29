@@ -39,6 +39,30 @@
       font-style: italic;
     }
 
+    /* Navigation bar */
+    nav {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 12px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    nav a.active {
+      color: #238636;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #2fa85f;
+      text-decoration: underline;
+    }
+
     /* Calculator card */
     .calculator-card {
       background: #161b22;
@@ -84,6 +108,15 @@
       background: #2fa85f;
     }
 
+    .reset-btn {
+      background: #e5534b;
+      margin-top: 10px;
+    }
+
+    .reset-btn:hover {
+      background: #ff6650;
+    }
+
     .result {
       font-size: 1.2rem;
       margin-top: 20px;
@@ -97,16 +130,6 @@
       text-align: center;
     }
 
-    /* Reset button */
-    .reset-btn {
-      background: #e5534b;
-      margin-top: 10px;
-    }
-
-    .reset-btn:hover {
-      background: #ff6650;
-    }
-
     @media(max-width:480px) {
       .calculator-card { padding: 20px; }
     }
@@ -114,9 +137,19 @@
 </head>
 <body>
 
+  <!-- Navigation Bar -->
+  <nav>
+    <a href="index.html">Home</a> |
+    <a href="profit-loss.html" class="active">Profit/Loss</a> |
+    <a href="position-size.html">Position Size</a> |
+    <a href="usd-converter.html">USD Converter</a>
+  </nav>
+
+  <!-- Page Header -->
   <h1>Crypto Learning Hub</h1>
   <p class="tagline">Maximize your profits, minimize your losses.</p>
 
+  <!-- Calculator Card -->
   <div class="calculator-card">
     <h2>Profit / Loss Calculator</h2>
     <input type="number" step="any" id="buyPrice" placeholder="Buy Price (USD)">
@@ -127,8 +160,10 @@
     <p class="result" id="result"></p>
   </div>
 
+  <!-- Quote Section -->
   <p class="quote">"Plan your trade and trade your plan." – Anonymous</p>
 
+  <!-- Calculator Script -->
   <script>
     function calculateProfitLoss() {
       const buy = parseFloat(document.getElementById('buyPrice').value);
