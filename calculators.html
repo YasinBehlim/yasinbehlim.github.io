@@ -3,8 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Free professional crypto calculators. Check live prices, calculate profit & loss with fees, convert crypto to USD, and calculate position size instantly.">
+<meta name="description" content="Crypto calculators with charts, trade history, mini price trends, live alerts, and real-time price updates.">
 <title>Crypto Calculators – Coin2Cash</title>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root{
@@ -13,84 +16,32 @@
   --text:#ffffff;
   --muted:#8b949e;
   --accent:#238636;
+  --alert:#fbbf24;
 }
 
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
-}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto;}
 
 .container{max-width:1100px;margin:auto;padding:25px;}
 
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:15px;
-}
-
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;}
 .logo{font-size:1.6rem;font-weight:700;}
-
-nav a{
-  color:var(--muted);
-  text-decoration:none;
-  margin:0 12px;
-  font-weight:500;
-}
+nav a{color:var(--muted);text-decoration:none;margin:0 12px;font-weight:500;}
 
 h1{margin:30px 0 10px;}
 p{color:var(--muted);}
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:20px;
-  margin-top:30px;
-}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:30px;}
 
-.box{
-  background:var(--panel);
-  padding:22px;
-  border-radius:16px;
-  box-shadow:0 6px 25px rgba(0,0,0,.35);
-}
-
-input, select{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border-radius:8px;
-  border:none;
-  background:#0001;
-  color:var(--text);
-}
-
-button{
-  padding:12px 20px;
-  background:var(--accent);
-  color:#fff;
-  border:none;
-  border-radius:10px;
-  font-weight:700;
-  cursor:pointer;
-  margin-top:8px;
-}
-
-.result{
-  margin-top:10px;
-  font-size:1.2rem;
-}
-
-footer{
-  margin-top:70px;
-  padding:25px 10px;
-  text-align:center;
-  color:var(--muted);
-  border-top:1px solid #222;
-}
+.box{background:var(--panel);padding:22px;border-radius:16px;box-shadow:0 6px 25px rgba(0,0,0,.35);}
+input, select{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none;background:#0001;color:var(--text);}
+button{padding:12px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;margin-top:8px;}
+.result{margin-top:10px;font-size:1.2rem;}
+canvas{margin-top:15px;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th, td{padding:6px;text-align:center;border-bottom:1px solid #444;}
+th{background:var(--accent);color:#fff;}
+.alert-row{background:var(--alert);color:#000;}
+footer{margin-top:70px;padding:25px 10px;text-align:center;color:var(--muted);border-top:1px solid #222;}
 </style>
 </head>
 
@@ -109,29 +60,39 @@ footer{
   </nav>
 </header>
 
-<h1>Crypto Calculators</h1>
-<p>Professional crypto calculation tools for traders to calculate profit, manage risk, and make informed trading decisions.</p>
+<h1>Crypto Calculators & Dashboard</h1>
+<p>Trade smarter: Profit/Loss, Position Size, Live Prices, mini trend charts, trade history, live alerts, and real-time updates.</p>
 
 <div class="grid">
 
-<!-- LIVE PRICE -->
+<!-- LIVE PRICE + TREND + ALERTS -->
 <div class="box">
   <h3>Live Price Checker</h3>
   <input type="text" id="s" placeholder="Search coin...">
   <select id="coin"></select>
-  <button onclick="check()">Check Price</button>
   <div id="price" class="result"></div>
+  <canvas id="trendChart" height="150"></canvas>
+
+  <h4 style="margin-top:15px;">Set Price Alerts</h4>
+  <input type="number" id="alertPrice" placeholder="Alert Price USD">
+  <select id="alertType">
+    <option value="above">Above</option>
+    <option value="below">Below</option>
+  </select>
+  <button onclick="setAlert()">Set Alert</button>
+  <div id="alertsDiv" class="result" style="font-size:0.9rem;"></div>
 </div>
 
-<!-- PROFIT / LOSS WITH FEES & ROI -->
+<!-- PROFIT / LOSS -->
 <div class="box">
-  <h3>Profit / Loss Calculator (with Fees & ROI)</h3>
+  <h3>Profit / Loss Calculator (with Fees, ROI & Chart)</h3>
   <input type="number" id="buy" placeholder="Buy Price (USD)">
   <input type="number" id="sell" placeholder="Sell Price (USD)">
   <input type="number" id="amt" placeholder="Coin Amount">
   <input type="number" id="fee" placeholder="Exchange Fee (%) e.g., 0.1" step="0.01">
   <button onclick="profit()">Calculate</button>
   <div id="prof" class="result"></div>
+  <canvas id="profitChart" height="200"></canvas>
 </div>
 
 <!-- CONVERTER -->
@@ -145,33 +106,55 @@ footer{
 
 <!-- POSITION SIZE -->
 <div class="box">
-  <h3>Position Size Calculator</h3>
-  <p style="color:var(--muted); font-size:0.9rem;">
-    Calculate how many coins to buy based on your account size and risk per trade.
-  </p>
-
+  <h3>Position Size Calculator (with Chart)</h3>
+  <p style="color:var(--muted); font-size:0.9rem;">Calculate coins to buy based on account size and risk per trade.</p>
   <input type="number" id="account" placeholder="Account Balance (USD)">
   <input type="number" id="risk" placeholder="Risk per Trade (%)">
   <input type="number" id="stop" placeholder="Stop-Loss Distance (USD)">
-
   <button onclick="positionSize()">Calculate</button>
-
   <div id="positionResult" class="result"></div>
+  <canvas id="positionChart" height="200"></canvas>
+</div>
+
+<!-- TRADE HISTORY -->
+<div class="box">
+  <h3>Trade History / Compare Trades</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Buy</th>
+        <th>Sell</th>
+        <th>Amount</th>
+        <th>Fees</th>
+        <th>Net Profit</th>
+        <th>ROI %</th>
+        <th>Coins to Buy</th>
+        <th>Money at Risk</th>
+      </tr>
+    </thead>
+    <tbody id="historyBody"></tbody>
+  </table>
 </div>
 
 </div>
 
 <footer>
-  © 2026 Coin2Cash • Accurate Crypto Calculators
+  © 2026 Coin2Cash • Real-Time Crypto Dashboard
 </footer>
 
 </div>
 
 <script>
-let all=[];
-fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=250')
-.then(r=>r.json()).then(d=>{all=d;list(d);});
+let all=[], tradeCount=0;
+let trendChartInstance, profitChartInstance, positionChartInstance;
+let alerts=[];
 
+// Fetch coins
+fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=250')
+.then(r=>r.json()).then(d=>{all=d;list(all);});
+
+// Populate coin select
 function list(c){
   const s=document.getElementById('coin');
   s.innerHTML='';
@@ -186,80 +169,80 @@ function list(c){
 document.getElementById('s').oninput = e => {
   let q = e.target.value.toLowerCase();
   list(all.filter(x => x.name.toLowerCase().includes(q) || x.symbol.includes(q)));
-};
-
-// LIVE PRICE CHECKER
-function check(){
-  const id = document.getElementById('coin').value;
-  const priceDiv = document.getElementById('price');
-  priceDiv.textContent = "Loading...";
-  fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`)
-  .then(r=>r.json())
-  .then(d=>priceDiv.innerHTML=`$${d[id].usd.toLocaleString()}`)
-  .catch(()=>priceDiv.textContent = "Error fetching price");
 }
 
-// PROFIT / LOSS WITH FEES & ROI
+// ALERTS
+function setAlert(){
+  const price = +document.getElementById('alertPrice').value;
+  const type = document.getElementById('alertType').value;
+  const coinId = document.getElementById('coin').value;
+  if(price<=0){alert("Enter a valid alert price"); return;}
+  alerts.push({coinId,type,price});
+  updateAlertsDisplay();
+}
+function updateAlertsDisplay(){
+  const div=document.getElementById('alertsDiv');
+  div.innerHTML = alerts.map((a,i)=>`${i+1}. ${a.coinId} - ${a.type} $${a.price}`).join('<br>');
+}
+function checkAlerts(coinId, price){
+  alerts.forEach((a,i)=>{
+    if(a.coinId===coinId){
+      if((a.type==='above' && price>=a.price) || (a.type==='below' && price<=a.price)){
+        alert(`Price Alert: ${coinId} is ${a.type} $${a.price} (current: $${price})`);
+        alerts.splice(i,1);
+        updateAlertsDisplay();
+      }
+    }
+  });
+}
+
+// LIVE PRICE + TREND
+async function check(){
+  const id=document.getElementById('coin').value;
+  const priceDiv=document.getElementById('price');
+  try{
+    const resp=await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
+    const d=await resp.json();
+    const price=d[id].usd;
+    priceDiv.innerHTML=`$${price.toLocaleString()}`;
+    checkAlerts(id,price);
+    const chartResp=await fetch(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=7&interval=daily`);
+    const chartData=await chartResp.json();
+    const prices=chartData.prices.map(p=>p[1]);
+    const labels=chartData.prices.map((_,i)=>`Day ${i+1}`);
+    const ctx=document.getElementById('trendChart').getContext('2d');
+    if(trendChartInstance) trendChartInstance.destroy();
+    trendChartInstance = new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Price USD',data:prices,borderColor:'#34d399',backgroundColor:'rgba(52,211,153,0.2)',fill:true,tension:0.3}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false}}}});
+  }catch{priceDiv.textContent="Error fetching price";}
+}
+
+// AUTO REFRESH every 10 seconds
+setInterval(check,10000);
+
+// PROFIT / LOSS
 function profit(){
-  const buy = +document.getElementById('buy').value;
-  const sell = +document.getElementById('sell').value;
-  const amt = +document.getElementById('amt').value;
-  const feePercent = +document.getElementById('fee').value || 0;
-  const profDiv = document.getElementById('prof');
-
-  if(buy<=0 || sell<=0 || amt<=0){
-    profDiv.innerHTML = '<span style="color:#e5534b">Please enter valid positive numbers.</span>';
-    return;
-  }
-
-  const totalBuy = buy * amt;
-  const totalSell = sell * amt;
-  const fee = feePercent / 100;
-  const totalFee = totalBuy * fee + totalSell * fee;
-  const netProfit = totalSell - totalBuy - totalFee;
-  const roi = (netProfit / totalBuy) * 100;
-
-  profDiv.innerHTML = `
-    Net Profit: <strong style="color:${netProfit>=0?'#238636':'#e5534b'}">$${netProfit.toFixed(2)}</strong><br>
-    ROI: <strong style="color:${roi>=0?'#238636':'#e5534b'}">${roi.toFixed(2)}%</strong><br>
-    Total Fees Paid: <strong style="color:#f0b90b">$${totalFee.toFixed(2)}</strong>
-  `;
+  const buy=+document.getElementById('buy').value;
+  const sell=+document.getElementById('sell').value;
+  const amt=+document.getElementById('amt').value;
+  const feePercent=+document.getElementById('fee').value||0;
+  const profDiv=document.getElementById('prof');
+  if(buy<=0||sell<=0||amt<=0){profDiv.innerHTML='<span style="color:#e5534b">Enter valid numbers</span>'; if(profitChartInstance) profitChartInstance.destroy(); return;}
+  const totalBuy=buy*amt,totalSell=sell*amt,fee=feePercent/100,totalFee=totalBuy*fee+totalSell*fee,netProfit=totalSell-totalBuy-totalFee,roi=(netProfit/totalBuy)*100;
+  profDiv.innerHTML=`Net Profit: <strong style="color:${netProfit>=0?'#238636':'#e5534b'}">$${netProfit.toFixed(2)}</strong><br>ROI: <strong style="color:${roi>=0?'#238636':'#e5534b'}">${roi.toFixed(2)}%</strong><br>Total Fees: <strong style="color:#f0b90b">$${totalFee.toFixed(2)}</strong>`;
+  if(profitChartInstance) profitChartInstance.destroy();
+  const ctx=document.getElementById('profitChart').getContext('2d');
+  profitChartInstance=new Chart(ctx,{type:'bar',data:{labels:['Buy','Sell','Net Profit'],datasets:[{data:[totalBuy,totalSell,netProfit],backgroundColor:['#f87171','#34d399','#238636']}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  addToHistory(buy,sell,amt,totalFee,netProfit,roi,0,0);
 }
 
 // CONVERTER
-function convert(){
-  const price = +document.getElementById('price2').value;
-  const qty = +document.getElementById('qty').value;
-  const totalDiv = document.getElementById('total');
+function convert(){const price=+document.getElementById('price2').value, qty=+document.getElementById('qty').value, totalDiv=document.getElementById('total'); if(price<=0||qty<=0){totalDiv.innerHTML='<span style="color:#e5534b">Enter valid numbers</span>';return;} totalDiv.innerHTML=`Total: <strong style="color:#238636">$${(price*qty).toFixed(2)}</strong>`;}
 
-  if(price<=0 || qty<=0){
-    totalDiv.innerHTML = '<span style="color:#e5534b">Please enter valid positive numbers.</span>';
-    return;
-  }
+// POSITION SIZE
+function positionSize(){const balance=+document.getElementById('account').value,riskPercent=+document.getElementById('risk').value,stopLoss=+document.getElementById('stop').value,positionDiv=document.getElementById('positionResult'); if(balance<=0||riskPercent<=0||stopLoss<=0){positionDiv.innerHTML='<span style="color:#e5534b">Enter valid numbers</span>'; if(positionChartInstance) positionChartInstance.destroy(); return;} const moneyRisked=(riskPercent/100)*balance; const coins=moneyRisked/stopLoss; positionDiv.innerHTML=`Money at Risk: <strong style="color:#238636">$${moneyRisked.toFixed(2)}</strong><br>Coins to Buy: <strong style="color:#238636">${coins.toFixed(6)}</strong>`; if(positionChartInstance) positionChartInstance.destroy(); const ctx2=document.getElementById('positionChart').getContext('2d'); positionChartInstance = new Chart(ctx2,{type:'doughnut',data:{labels:['Money at Risk','Remaining Account'],datasets:[{data:[moneyRisked,balance-moneyRisked],backgroundColor:['#fbbf24','#0ea5e9']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}}); const lastRow=document.getElementById('historyBody').lastChild; if(lastRow){lastRow.cells[7].textContent=coins.toFixed(6); lastRow.cells[8].textContent=moneyRisked.toFixed(2);}}
 
-  totalDiv.innerHTML = `Total: <strong style="color:#238636">$${(price*qty).toFixed(2)}</strong>`;
-}
-
-// POSITION SIZE CALCULATOR
-function positionSize(){
-  const balance = +document.getElementById('account').value;
-  const riskPercent = +document.getElementById('risk').value;
-  const stopLoss = +document.getElementById('stop').value;
-  const positionDiv = document.getElementById('positionResult');
-
-  if(balance <= 0 || riskPercent <= 0 || stopLoss <= 0){
-    positionDiv.innerHTML = '<span style="color:#e5534b">Please enter valid positive numbers.</span>';
-    return;
-  }
-
-  const moneyRisked = (riskPercent / 100) * balance;
-  const coins = moneyRisked / stopLoss;
-
-  positionDiv.innerHTML = `
-    Money at Risk: <strong style="color:#238636">$${moneyRisked.toFixed(2)}</strong><br>
-    Coins to Buy: <strong style="color:#238636">${coins.toFixed(6)}</strong>
-  `;
-}
+// TRADE HISTORY
+function addToHistory(buy,sell,amt,fee,netProfit,roi,coins,moneyRisked){tradeCount++; const tbody=document.getElementById('historyBody'); const row=document.createElement('tr'); row.innerHTML=`<td>${tradeCount}</td><td>${buy}</td><td>${sell}</td><td>${amt}</td><td>${fee.toFixed(2)}</td><td style="color:${netProfit>=0?'#238636':'#e5534b'}">${netProfit.toFixed(2)}</td><td style="color:${roi>=0?'#238636':'#e5534b'}">${roi.toFixed(2)}</td><td>${coins.toFixed(6)}</td><td>${moneyRisked.toFixed(2)}</td>`; tbody.appendChild(row);}
 </script>
 
 </body>
