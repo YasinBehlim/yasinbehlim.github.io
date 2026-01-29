@@ -128,11 +128,15 @@ input { padding:6px 10px; border-radius:6px; border:none; background:#0001; colo
 let allCoins = [];
 let displayedCoins = [];
 
-// Fetch top 50 coins using free CORS proxy
-fetch('https://api.codetabs.com/v1/proxy?quest=https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50')
-  .then(r => r.json())
+// Fetch top 50 coins using AllOrigins proxy to avoid CORS issues
+fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50'))
+  .then(response => {
+    if(!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  })
   .then(data => {
-    allCoins = data;
+    let coins = JSON.parse(data.contents); // AllOrigins wraps response in "contents"
+    allCoins = coins;
     displayedCoins = allCoins.slice(0,10); // show top 10 by default
     renderCoins(displayedCoins);
   })
