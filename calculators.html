@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Free professional crypto calculators. Check live prices, calculate profit & loss, and convert crypto to USD instantly.">
+<meta name="description" content="Free professional crypto calculators. Check live prices, calculate profit & loss, convert crypto to USD, and calculate position size instantly.">
 <title>Crypto Calculators – Coin2Cash</title>
 
 <style>
@@ -123,7 +123,7 @@ footer{
   <div id="price" class="result"></div>
 </div>
 
-<!-- PROFIT -->
+<!-- PROFIT / LOSS -->
 <div class="box">
   <h3>Profit / Loss Calculator</h3>
   <input type="number" id="buy" placeholder="Buy Price (USD)">
@@ -140,6 +140,22 @@ footer{
   <input type="number" id="qty" placeholder="Coin amount">
   <button onclick="convert()">Convert</button>
   <div id="total" class="result"></div>
+</div>
+
+<!-- POSITION SIZE -->
+<div class="box">
+  <h3>Position Size Calculator</h3>
+  <p style="color:var(--muted); font-size:0.9rem;">
+    Calculate how many coins to buy based on your account size and risk per trade.
+  </p>
+
+  <input type="number" id="account" placeholder="Account Balance (USD)">
+  <input type="number" id="risk" placeholder="Risk per Trade (%)">
+  <input type="number" id="stop" placeholder="Stop-Loss Distance (USD)">
+
+  <button onclick="positionSize()">Calculate</button>
+
+  <div id="positionResult" class="result"></div>
 </div>
 
 </div>
@@ -187,6 +203,27 @@ function profit(){
 function convert(){
   let p=+price2.value,q=+qty.value;
   total.innerHTML=`Total: <strong style="color:#238636">$${(p*q).toFixed(2)}</strong>`;
+}
+
+function positionSize(){
+  let balance = +document.getElementById('account').value;
+  let riskPercent = +document.getElementById('risk').value;
+  let stopLoss = +document.getElementById('stop').value;
+
+  if(balance <= 0 || riskPercent <= 0 || stopLoss <= 0){
+    positionResult.innerHTML = '<span style="color:#e5534b">Please enter valid positive numbers.</span>';
+    return;
+  }
+
+  // Money at risk
+  let moneyRisked = (riskPercent / 100) * balance;
+  // Coins to buy
+  let coins = moneyRisked / stopLoss;
+
+  positionResult.innerHTML = `
+    Money at Risk: <strong style="color:#238636">$${moneyRisked.toFixed(2)}</strong><br>
+    Coins to Buy: <strong style="color:#238636">${coins.toFixed(6)}</strong>
+  `;
 }
 </script>
 
