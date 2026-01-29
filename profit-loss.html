@@ -56,7 +56,7 @@
     }
     .coin { font-weight:600; }
 
-    /* Hero / Title */
+    /* Header / Title */
     header {
       display:flex;
       justify-content:center;
@@ -133,6 +133,9 @@
     }
     .learning h3 { color:var(--accent); margin-top:0; }
 
+    /* Result */
+    #result { font-size:1.3rem; font-weight:600; margin-top:20px; text-align:center; }
+
     /* Footer */
     footer {
       text-align:center;
@@ -146,7 +149,7 @@
 </head>
 <body>
 
-<!-- Navigation - same style as homepage -->
+<!-- Navigation -->
 <nav>
   <a href="index.html">Home</a>
   <a href="profit-loss.html" class="active">Profit/Loss Calculator</a>
@@ -156,13 +159,13 @@
   <a href="contact.html">Contact</a>
 </nav>
 
-<!-- Live Price Bar - identical to homepage -->
+<!-- Live Price Bar -->
 <div id="livePriceBar">
+  <input type="text" id="searchCoin" placeholder="Search coin...">
   Loading top coins...
-  <input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">
 </div>
 
-<!-- Header / Title -->
+<!-- Header -->
 <header>
   <h1>Profit / Loss Calculator</h1>
   <p class="tagline">Calculate your potential gains or losses – spot or leveraged trades</p>
@@ -173,7 +176,7 @@
   ⚠️ Educational tools only — NOT financial advice. Crypto trading involves high risk of total capital loss. Always verify calculations independently and trade responsibly.
 </div>
 
-<!-- Profit/Loss Calculator -->
+<!-- Calculator -->
 <div class="calculator-card">
   <h2>Calculate Profit / Loss</h2>
   <div class="row">
@@ -183,14 +186,14 @@
   <input type="number" step="any" min="0" id="amt" placeholder="Amount / Quantity of coins" required>
   <input type="number" step="any" min="0" id="fees" placeholder="Total fees (USD) – optional" value="0">
   <button onclick="calculateProfit()">Calculate PnL</button>
-  <div id="result" style="font-size:1.3rem; font-weight:600; margin-top:20px; text-align:center;"></div>
+  <div id="result"></div>
 </div>
 
-<!-- Learning Section -->
+<!-- Learning -->
 <div class="learning">
   <h3>How Profit & Loss Works (Quick Guide)</h3>
   <p><strong>Spot trading (no leverage):</strong> PnL = (Sell - Buy) × Quantity - Fees</p>
-  <p><strong>Futures / Leveraged trades:</strong> PnL = (Sell - Buy) × Quantity × Leverage - Fees</p>
+  <p><strong>Futures / Leveraged:</strong> PnL = (Sell - Buy) × Quantity × Leverage - Fees</p>
   <p><strong>Return %:</strong> (PnL / (Buy Price × Quantity)) × 100%</p>
   <p>Always include exchange fees, funding rates (for perps), and potential slippage in real trades.</p>
 </div>
@@ -202,9 +205,13 @@
 </footer>
 
 <script>
-// Live price bar logic - same as homepage
+// Live price bar logic (search now fixed)
 let allCoins = [];
 let displayedCoins = [];
+
+// Attach listener once
+const searchInput = document.getElementById('searchCoin');
+searchInput.addEventListener('input', filterCoins);
 
 fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&sparkline=false&price_change_percentage=24h')
   .then(r => {
@@ -218,23 +225,25 @@ fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=mark
   })
   .catch(e => {
     console.error('CoinGecko fetch error:', e);
-    document.getElementById('livePriceBar').innerHTML = `
-      <input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">
-      <div style="color:#ff9800; padding:8px; font-weight:500; text-align:center; width:100%;">
-        Live prices temporarily unavailable. Refresh or try later.
+    document.getElementById('livePriceBar').innerHTML += `
+      <div style="color:#ff9800; padding:8px; font-weight:500; text-align:center; width:100%; margin-top:10px;">
+        Failed to load coins: ${e.message || 'API/network issue'}. Try refreshing.
       </div>
     `;
   });
 
 function renderCoins(coins) {
   const bar = document.getElementById('livePriceBar');
-  bar.innerHTML = '<input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">';
-  
+  // Remove existing coins but keep input and any error message
+  while (bar.children.length > 1) {  // Keep the input (first child)
+    if (bar.lastChild !== searchInput) bar.removeChild(bar.lastChild);
+  }
+
   coins.forEach(c => {
     const change = c.price_change_percentage_24h;
     const changeColor = change >= 0 ? '#26a69a' : '#ef5350';
     const changeText = change >= 0 ? `+${change.toFixed(2)}%` : change.toFixed(2) + '%';
-    
+
     let div = document.createElement('div');
     div.className = 'coin';
     div.innerHTML = `
@@ -247,7 +256,7 @@ function renderCoins(coins) {
 }
 
 function filterCoins() {
-  const query = document.getElementById('searchCoin').value.toLowerCase();
+  const query = searchInput.value.toLowerCase();
   if (!allCoins.length) return;
   displayedCoins = allCoins.filter(c => 
     c.name.toLowerCase().includes(query) || c.symbol.toLowerCase().includes(query)
@@ -255,7 +264,7 @@ function filterCoins() {
   renderCoins(displayedCoins.slice(0, 10));
 }
 
-// PnL Calculation
+// PnL Calculation (unchanged)
 function calculateProfit() {
   const buy = parseFloat(document.getElementById('buy').value);
   const sell = parseFloat(document.getElementById('sell').value);
