@@ -8,7 +8,11 @@
 
 <style>
 :root {
-  --bg:#0d1117; --panel:#161b22; --text:#fff; --muted:#8b949e; --accent:#238636;
+  --bg:#0d1117;
+  --panel:#161b22;
+  --text:#fff;
+  --muted:#8b949e;
+  --accent:#238636;
 }
 body { margin:0; font-family:system-ui; background:var(--bg); color:var(--text); }
 a { text-decoration:none; }
@@ -51,10 +55,27 @@ nav a:hover {
 .coin { font-weight:600; }
 
 /* Hero Section */
-header { text-align:center; padding:40px 20px; }
+header {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:60px 20px;
+  flex-direction:column;
+}
 header h1 { font-size:3rem; margin-bottom:15px; }
-header p { font-size:1.3rem; color:var(--muted); max-width:700px; margin:auto 0 15px; }
-header .quote { font-size:1.1rem; color:#8b949e; font-style:italic; margin-top:10px; }
+header p {
+  font-size:1.3rem;
+  color:var(--muted);
+  max-width:700px;
+  margin:0 auto 15px auto;
+}
+header .quote {
+  font-size:1.1rem;
+  color:#8b949e;
+  font-style:italic;
+  margin-top:10px;
+}
 
 /* Sections */
 section { padding:40px 20px; text-align:center; }
@@ -107,12 +128,12 @@ input { padding:6px 10px; border-radius:6px; border:none; background:#0001; colo
 let allCoins = [];
 let displayedCoins = [];
 
-// Fetch top 10 coins using free CORS proxy
+// Fetch top 50 coins using free CORS proxy
 fetch('https://api.codetabs.com/v1/proxy?quest=https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50')
   .then(r => r.json())
   .then(data => {
     allCoins = data;
-    displayedCoins = allCoins.slice(0,10);
+    displayedCoins = allCoins.slice(0,10); // show top 10 by default
     renderCoins(displayedCoins);
   })
   .catch(e => {
