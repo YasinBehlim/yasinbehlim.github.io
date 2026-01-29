@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crypto Learning Hub</title>
-<meta name="description" content="Interactive crypto learning tools: calculators, converters, live prices.">
+<meta name="description" content="Interactive crypto learning tools: calculators, converters, live prices, trading basics.">
 <style>
 :root {
   --bg:#0d1117;
@@ -84,6 +84,26 @@ header .quote {
   margin-left:auto;
   margin-right:auto;
 }
+/* Learning Cards */
+.learning-card {
+  background:var(--panel);
+  padding:20px;
+  border-radius:12px;
+  border:1px solid #222;
+  transition: transform 0.2s;
+}
+.learning-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.learning-card h3 {
+  color:var(--accent);
+  margin-bottom:10px;
+}
+.learning-card a {
+  color:var(--accent);
+  font-weight:600;
+}
 /* Sections */
 section { padding:40px 20px; text-align:center; }
 section h2 { font-size:2rem; margin-bottom:20px; }
@@ -113,7 +133,7 @@ input { padding:6px 10px; border-radius:6px; border:none; background:#0001; colo
 <!-- Hero Section -->
 <header>
   <h1>Crypto Learning Hub</h1>
-  <p>Free interactive tools to understand crypto trading mechanics: accurate profit/loss tracking, USD conversions, position sizing for risk control, and live market data.</p>
+  <p>Free interactive tools + quick guides to understand crypto trading mechanics: profit/loss, conversions, position sizing, live data, and core concepts.</p>
   <div class="quote">“Trade smart. Learn fast. Protect your capital. Grow your journey.”</div>
 </header>
 
@@ -122,10 +142,57 @@ input { padding:6px 10px; border-radius:6px; border:none; background:#0001; colo
   ⚠️ These are educational tools only — NOT financial advice. Crypto trading involves high risk of total capital loss. Always verify calculations independently and trade responsibly.
 </div>
 
+<!-- Learning Basics Section -->
+<section id="learning-basics">
+  <h2>Crypto Trading Basics – Quick Understanding</h2>
+  <p style="font-size:1.1rem; color:var(--muted); max-width:700px; margin:0 auto 30px;">
+    Short explanations of essential concepts for beginners. Apply them directly with the free calculators above.
+  </p>
+  
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; max-width:960px; margin:auto;">
+    
+    <!-- Card 1 -->
+    <div class="learning-card">
+      <h3>1. Risk Management & Position Sizing</h3>
+      <p>Limit risk to 1–2% of your account per trade to survive losing streaks. Position size depends on account balance, risk %, and stop-loss distance.</p>
+      <a href="position-size.html">Try Position Size Calculator →</a>
+    </div>
+    
+    <!-- Card 2 -->
+    <div class="learning-card">
+      <h3>2. Profit & Loss (PnL) Calculation</h3>
+      <p>For longs: PnL = (Exit - Entry) × Quantity × Leverage multiplier. Always factor in fees. Know realized vs unrealized PnL before closing.</p>
+      <a href="profit-loss.html">Test with Profit/Loss Calculator →</a>
+    </div>
+    
+    <!-- Card 3 -->
+    <div class="learning-card">
+      <h3>3. Leverage & Liquidation</h3>
+      <p>Leverage multiplies gains and losses (10x = 1% move affects 10% of margin). Liquidation happens when losses eat your margin — calculate it before trading.</p>
+      <p style="color:var(--muted); font-size:0.95rem;">Preview risks with the tools here.</p>
+    </div>
+    
+    <!-- Card 4 -->
+    <div class="learning-card">
+      <h3>4. Stablecoins & Conversions</h3>
+      <p>USDT/USDC help lock in value during volatility. Understand exact rates, fees, and spreads when converting to/from fiat or other coins.</p>
+      <a href="usd-converter.html">Practice with USD Converter →</a>
+    </div>
+    
+    <!-- Card 5 -->
+    <div class="learning-card">
+      <h3>5. Market vs Limit Orders</h3>
+      <p>Market orders fill instantly at current price (convenient but can slip). Limit orders wait for your chosen price (more control, may not execute).</p>
+      <p style="color:var(--muted); font-size:0.95rem;">Use live prices above to set smart limits.</p>
+    </div>
+
+  </div>
+</section>
+
 <!-- Get Started Section -->
 <section>
   <h2>Get Started</h2>
-  <p>Select any calculator from the navigation above to start learning and trading smarter.</p>
+  <p>Select any calculator or explore the basics above to start learning and trading smarter.</p>
 </section>
 
 <!-- Footer -->
@@ -138,7 +205,7 @@ input { padding:6px 10px; border-radius:6px; border:none; background:#0001; colo
 let allCoins = [];
 let displayedCoins = [];
 
-// Try direct CoinGecko API first (often works on GH Pages for low volume)
+// Direct CoinGecko fetch
 fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&sparkline=false&price_change_percentage=24h')
   .then(r => {
     if (!r.ok) throw new Error('Network response was not ok: ' + r.status);
@@ -150,18 +217,16 @@ fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=mark
     renderCoins(displayedCoins);
   })
   .catch(e => {
-    console.error('Direct fetch failed:', e);
-    // Fallback: show message but keep search input
+    console.error('CoinGecko fetch error:', e);
     const bar = document.getElementById('livePriceBar');
     bar.innerHTML = `
       <input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">
       <div style="color:#ff9800; padding:8px; font-weight:500; text-align:center; width:100%;">
-        Live prices temporarily unavailable (API/network issue). Refresh page or try later.
+        Live prices temporarily unavailable (API/network issue). Refresh or try later.
       </div>
     `;
   });
 
-// Render coins with price + 24h change
 function renderCoins(coins) {
   const bar = document.getElementById('livePriceBar');
   bar.innerHTML = '<input type="text" id="searchCoin" placeholder="Search coin..." oninput="filterCoins()">';
@@ -188,7 +253,7 @@ function filterCoins() {
   displayedCoins = allCoins.filter(c => 
     c.name.toLowerCase().includes(query) || c.symbol.toLowerCase().includes(query)
   );
-  renderCoins(displayedCoins.slice(0, 10)); // show up to 10 results
+  renderCoins(displayedCoins.slice(0, 10));
 }
 </script>
 </body>
