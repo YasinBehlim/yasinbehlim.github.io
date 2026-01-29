@@ -182,45 +182,68 @@ function list(c){
   });
 }
 
-document.getElementById('s').oninput=e=>{
-  let q=e.target.value.toLowerCase();
-  list(all.filter(x=>x.name.toLowerCase().includes(q)||x.symbol.includes(q)));
+document.getElementById('s').oninput = e => {
+  let q = e.target.value.toLowerCase();
+  list(all.filter(x => x.name.toLowerCase().includes(q) || x.symbol.includes(q)));
 };
 
+// LIVE PRICE CHECKER
 function check(){
-  let id=document.getElementById('coin').value;
+  const id = document.getElementById('coin').value;
+  const priceDiv = document.getElementById('price');
+  priceDiv.textContent = "Loading...";
   fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`)
   .then(r=>r.json())
-  .then(d=>document.getElementById('price').innerHTML=`$${d[id].usd.toLocaleString()}`);
+  .then(d=>priceDiv.innerHTML=`$${d[id].usd.toLocaleString()}`)
+  .catch(()=>priceDiv.textContent = "Error fetching price");
 }
 
+// PROFIT / LOSS CALCULATOR
 function profit(){
-  let b=+buy.value,s=+sell.value,a=+amt.value;
-  let p=(s-b)*a;
-  prof.innerHTML=`Profit: <strong style="color:${p>=0?'#238636':'#e5534b'}">$${p.toFixed(2)}</strong>`;
-}
+  const buy = +document.getElementById('buy').value;
+  const sell = +document.getElementById('sell').value;
+  const amt = +document.getElementById('amt').value;
+  const profDiv = document.getElementById('prof');
 
-function convert(){
-  let p=+price2.value,q=+qty.value;
-  total.innerHTML=`Total: <strong style="color:#238636">$${(p*q).toFixed(2)}</strong>`;
-}
-
-function positionSize(){
-  let balance = +document.getElementById('account').value;
-  let riskPercent = +document.getElementById('risk').value;
-  let stopLoss = +document.getElementById('stop').value;
-
-  if(balance <= 0 || riskPercent <= 0 || stopLoss <= 0){
-    positionResult.innerHTML = '<span style="color:#e5534b">Please enter valid positive numbers.</span>';
+  if(buy<=0 || sell<=0 || amt<=0){
+    profDiv.innerHTML = '<span style="color:#e5534b">Please enter valid positive numbers.</span>';
     return;
   }
 
-  // Money at risk
-  let moneyRisked = (riskPercent / 100) * balance;
-  // Coins to buy
-  let coins = moneyRisked / stopLoss;
+  const p = (sell - buy) * amt;
+  profDiv.innerHTML = `Profit: <strong style="color:${p>=0?'#238636':'#e5534b'}">$${p.toFixed(2)}</strong>`;
+}
 
-  positionResult.innerHTML = `
+// CONVERTER
+function convert(){
+  const price = +document.getElementById('price2').value;
+  const qty = +document.getElementById('qty').value;
+  const totalDiv = document.getElementById('total');
+
+  if(price<=0 || qty<=0){
+    totalDiv.innerHTML = '<span style="color:#e5534b">Please enter valid positive numbers.</span>';
+    return;
+  }
+
+  totalDiv.innerHTML = `Total: <strong style="color:#238636">$${(price*qty).toFixed(2)}</strong>`;
+}
+
+// POSITION SIZE CALCULATOR
+function positionSize(){
+  const balance = +document.getElementById('account').value;
+  const riskPercent = +document.getElementById('risk').value;
+  const stopLoss = +document.getElementById('stop').value;
+  const positionDiv = document.getElementById('positionResult');
+
+  if(balance <= 0 || riskPercent <= 0 || stopLoss <= 0){
+    positionDiv.innerHTML = '<span style="color:#e5534b">Please enter valid positive numbers.</span>';
+    return;
+  }
+
+  const moneyRisked = (riskPercent / 100) * balance;
+  const coins = moneyRisked / stopLoss;
+
+  positionDiv.innerHTML = `
     Money at Risk: <strong style="color:#238636">$${moneyRisked.toFixed(2)}</strong><br>
     Coins to Buy: <strong style="color:#238636">${coins.toFixed(6)}</strong>
   `;
