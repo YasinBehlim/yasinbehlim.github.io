@@ -5,21 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profit/Loss Calculator - Crypto Learning Hub</title>
   <style>
-    :root { --bg:#0d1117; --panel:#161b22; --text:#fff; --accent:#238636; --muted:#8b949e; }
-    body { margin:0; font-family:Arial,sans-serif; background:var(--bg); color:var(--text); padding:20px; min-height:100vh; }
+    :root { --bg:#0d1117; --panel:#161b22; --text:#fff; --accent:#238636; --muted:#8b949e; --danger:#e5534b; --success:#238636; }
+    body { margin:0; font-family:system-ui, Arial, sans-serif; background:var(--bg); color:var(--text); padding:20px; min-height:100vh; }
     nav { background:var(--panel); text-align:center; padding:12px 0; position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.5); }
     nav a { color:var(--text); margin:0 12px; text-decoration:none; font-weight:500; transition:.3s; }
-    nav a.active { color:var(--accent); font-weight:bold; }
-    nav a:hover { color:#2fa85f; text-decoration:underline; }
-    h1 { color:var(--accent); text-align:center; }
-    .tagline { text-align:center; color:var(--muted); margin-bottom:30px; font-style:italic; }
-    .calculator-card, .price-card { background:var(--panel); padding:20px; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,0.4); margin-bottom:20px; max-width:600px; margin-left:auto; margin-right:auto; }
-    .calculator-card input, .calculator-card select { width:100%; padding:12px; margin:8px 0; border-radius:8px; border:none; background:#0001; color:var(--text); font-size:1rem; }
-    .calculator-card button { width:100%; padding:12px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px; }
-    .calculator-card button:hover { background:#2fa85f; }
+    nav a.active { color:var(--accent); font-weight:bold; border-bottom:2px solid var(--accent); padding-bottom:4px; }
+    nav a:hover { color:#2fa85f; }
+    h1 { color:var(--accent); text-align:center; margin:20px 0; }
+    .tagline { text-align:center; color:var(--muted); margin-bottom:20px; font-style:italic; }
+    .card { background:var(--panel); padding:24px; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,0.4); margin:20px auto; max-width:600px; }
+    .disclaimer { background:#332700; color:#ffcc80; padding:12px; text-align:center; border-radius:8px; margin:20px auto; max-width:600px; font-size:0.95rem; }
+    input, select, button { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:none; font-size:1rem; box-sizing:border-box; }
+    input, select { background:#0001; color:var(--text); }
+    button { background:var(--accent); color:#fff; font-weight:bold; cursor:pointer; transition:0.2s; }
+    button:hover { background:#2fa85f; }
     .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     @media(max-width:640px) { .row { grid-template-columns:1fr; } }
-    #livePrice { font-size:1.2rem; margin-top:12px; color:var(--muted); }
+    #result { font-size:1.3rem; font-weight:600; margin-top:15px; text-align:center; }
+    .learning { background:var(--panel); padding:20px; border-radius:12px; margin:20px auto; max-width:600px; border:1px solid #333; }
+    .learning h3 { color:var(--accent); margin-top:0; }
+    #livePrice { font-size:1.2rem; margin-top:12px; text-align:center; }
   </style>
 </head>
 <body>
@@ -33,42 +38,67 @@
     <a href="contact.html">Contact</a>
   </nav>
 
-  <h1>Crypto Learning Hub</h1>
-  <p class="tagline">Plan your trades smartly with Profit/Loss calculator</p>
+  <h1>Profit / Loss Calculator</h1>
+  <p class="tagline">Calculate your potential gains or losses – spot or leveraged trades</p>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    ⚠️ Educational tool only – NOT financial advice. Crypto trading carries high risk of loss. Verify all numbers yourself. Fees & slippage not always included.
+  </div>
 
   <!-- Live Price Card -->
-  <div class="price-card">
-    <h2 style="color:#238636;margin-bottom:12px;">Live Coin Price</h2>
-    <input type="text" id="coinSearch" placeholder="Search coin...">
-    <select id="coinDropdown"></select>
-    <button onclick="fetchPrice()">Check Price</button>
-    <p id="livePrice"></p>
+  <div class="card">
+    <h2 style="color:var(--accent); margin-bottom:16px;">Live Coin Price (CoinGecko)</h2>
+    <input type="text" id="coinSearch" placeholder="Search coin (e.g. bitcoin)...">
+    <select id="coinDropdown"><option value="">Select a coin...</option></select>
+    <button onclick="fetchPrice()">Check Current Price</button>
+    <p id="livePrice">Price will appear here...</p>
   </div>
 
   <!-- Profit/Loss Calculator -->
-  <div class="calculator-card">
-    <h2>Profit / Loss Calculator</h2>
+  <div class="card">
+    <h2>Calculate Profit / Loss</h2>
     <div class="row">
-      <input type="number" step="any" id="buy" placeholder="Buy Price (USD)">
-      <input type="number" step="any" id="sell" placeholder="Sell Price (USD)">
+      <input type="number" step="any" min="0" id="buy" placeholder="Entry / Buy Price (USD)" required>
+      <input type="number" step="any" min="0" id="sell" placeholder="Exit / Sell Price (USD)" required>
     </div>
-    <input type="number" step="any" id="amt" placeholder="Amount of coins">
-    <button onclick="calculateProfit()">Calculate</button>
-    <p id="profitResult"></p>
+    <input type="number" step="any" min="0" id="amt" placeholder="Amount / Quantity of coins" required>
+    <input type="number" step="any" min="0" id="fees" placeholder="Total fees (USD) – optional" value="0">
+    <button onclick="calculateProfit()">Calculate PnL</button>
+    <div id="result"></div>
+  </div>
+
+  <!-- Learning Section -->
+  <div class="learning">
+    <h3>How Profit & Loss Works (Quick Guide)</h3>
+    <p><strong>Spot trading (no leverage):</strong> PnL = (Sell Price - Buy Price) × Quantity - Fees</p>
+    <p><strong>Futures / Leveraged:</strong> PnL = (Sell Price - Buy Price) × Quantity × Leverage - Fees<br>
+    (Positive = profit, negative = loss. Watch for funding fees in perps.)</p>
+    <p><strong>% Return:</strong> (PnL / (Buy Price × Quantity)) × 100%</p>
+    <p>Use this to preview trades before executing on Binance, Bybit, etc. Always account for slippage and exchange fees in real trading.</p>
   </div>
 
 <script>
 let allCoins = [];
 
-// Fetch coins
+// Fetch top coins for dropdown
 fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1')
-  .then(r => r.json())
-  .then(data => { allCoins = data; populateCoinDropdown(allCoins); })
-  .catch(e => console.error('Error fetching coins:', e));
+  .then(r => {
+    if (!r.ok) throw new Error('Failed to fetch coins');
+    return r.json();
+  })
+  .then(data => {
+    allCoins = data;
+    populateCoinDropdown(allCoins);
+  })
+  .catch(e => {
+    console.error('Coin fetch error:', e);
+    document.getElementById('livePrice').innerHTML = '<span style="color:#ff9800;">Failed to load coins list. Try refreshing.</span>';
+  });
 
 function populateCoinDropdown(coins) {
   const dd = document.getElementById('coinDropdown');
-  dd.innerHTML = '';
+  dd.innerHTML = '<option value="">Select a coin...</option>';
   coins.forEach(c => {
     const opt = document.createElement('option');
     opt.value = c.id;
@@ -77,28 +107,62 @@ function populateCoinDropdown(coins) {
   });
 }
 
+// Search filter for dropdown
 document.getElementById('coinSearch').addEventListener('input', e => {
   const q = e.target.value.toLowerCase();
-  const filtered = allCoins.filter(c => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q));
+  const filtered = allCoins.filter(c => 
+    c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q)
+  );
   populateCoinDropdown(filtered);
 });
 
 function fetchPrice() {
   const coinId = document.getElementById('coinDropdown').value;
+  if (!coinId) {
+    document.getElementById('livePrice').textContent = 'Please select a coin first.';
+    return;
+  }
   fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`)
-    .then(r => r.json())
-    .then(d => { document.getElementById('livePrice').innerHTML = `Price: <strong style="color:#238636">$${d[coinId].usd}</strong>`; })
-    .catch(e => { console.error(e); document.getElementById('livePrice').textContent='Unable to fetch price'; });
+    .then(r => {
+      if (!r.ok) throw new Error('Price fetch failed');
+      return r.json();
+    })
+    .then(d => {
+      const price = d[coinId]?.usd;
+      document.getElementById('livePrice').innerHTML = price 
+        ? `Current price: <strong style="color:var(--success);">$${price.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:6})}</strong>`
+        : 'Price not available';
+    })
+    .catch(e => {
+      console.error(e);
+      document.getElementById('livePrice').innerHTML = '<span style="color:#ff9800;">Unable to fetch price. API may be limited.</span>';
+    });
 }
 
 function calculateProfit() {
-  const b = +document.getElementById('buy').value;
-  const s = +document.getElementById('sell').value;
-  const a = +document.getElementById('amt').value;
-  const p = (s - b) * a;
-  document.getElementById('profitResult').innerHTML = `Profit: <strong style="color:${p>=0?'#238636':'#e5534b'}">$${p.toFixed(2)}</strong>`;
+  const buy = parseFloat(document.getElementById('buy').value);
+  const sell = parseFloat(document.getElementById('sell').value);
+  const amt = parseFloat(document.getElementById('amt').value);
+  const fees = parseFloat(document.getElementById('fees').value) || 0;
+
+  if (isNaN(buy) || isNaN(sell) || isNaN(amt) || buy <= 0 || sell <= 0 || amt <= 0) {
+    document.getElementById('result').innerHTML = '<span style="color:#ff9800;">Please enter valid positive numbers for all required fields.</span>';
+    return;
+  }
+
+  const pnl = (sell - buy) * amt - fees;
+  const invested = buy * amt;
+  const percent = invested > 0 ? (pnl / invested) * 100 : 0;
+
+  const color = pnl >= 0 ? 'var(--success)' : 'var(--danger)';
+  const sign = pnl >= 0 ? '+' : '';
+
+  document.getElementById('result').innerHTML = `
+    PnL: <span style="color:${color};">${sign}$${Math.abs(pnl).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span><br>
+    Return: <span style="color:${color};">${percent.toFixed(2)}%</span><br>
+    <small>(after $${fees.toFixed(2)} fees)</small>
+  `;
 }
 </script>
-
 </body>
 </html>
