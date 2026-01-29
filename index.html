@@ -11,22 +11,50 @@
   --bg:#0d1117; --panel:#161b22; --text:#fff; --muted:#8b949e; --accent:#238636;
 }
 body { margin:0; font-family:system-ui; background:var(--bg); color:var(--text); }
-a { color: var(--text); text-decoration:none; }
+a { text-decoration:none; }
+
+/* Container */
 .container { max-width:960px; margin:auto; padding:20px; }
 
-/* Navigation */
-nav { text-align:center; margin-bottom:20px; }
-nav a { margin:0 15px; font-weight:600; color:var(--text); }
-nav a:hover { color:var(--accent); }
+/* Navigation as buttons */
+nav {
+  text-align:center;
+  margin-bottom:20px;
+}
+nav a {
+  display:inline-block;
+  margin:0 10px;
+  padding:10px 18px;
+  border-radius:8px;
+  background:var(--panel);
+  color:var(--text);
+  font-weight:600;
+  transition: all 0.3s ease;
+}
+nav a:hover {
+  background:var(--accent);
+  color:#fff;
+  transform:scale(1.05);
+}
 
 /* Live Price Bar */
-#livePriceBar { background:var(--panel); padding:10px; display:flex; flex-wrap:wrap; justify-content:center; gap:20px; border-radius:12px; margin-bottom:40px; }
+#livePriceBar { 
+  background:var(--panel); 
+  padding:10px; 
+  display:flex; 
+  flex-wrap:wrap; 
+  justify-content:center; 
+  gap:20px; 
+  border-radius:12px; 
+  margin-bottom:40px; 
+}
 .coin { font-weight:600; }
 
 /* Hero Section */
 header { text-align:center; padding:40px 20px; }
-header h1 { font-size:3rem; margin-bottom:20px; }
-header p { font-size:1.2rem; color:var(--muted); max-width:700px; margin:auto; }
+header h1 { font-size:3rem; margin-bottom:15px; }
+header p { font-size:1.3rem; color:var(--muted); max-width:700px; margin:auto 0 15px; }
+header .quote { font-size:1.1rem; color:#8b949e; font-style:italic; margin-top:10px; }
 
 /* Sections */
 section { padding:40px 20px; text-align:center; }
@@ -35,7 +63,8 @@ section h2 { font-size:2rem; margin-bottom:20px; }
 /* Footer */
 footer { text-align:center; padding:20px; font-size:0.9rem; color:var(--muted); border-top:1px solid #222; }
 
-input, select { padding:6px 10px; border-radius:6px; border:none; background:#0001; color:var(--text); margin-left:10px; }
+/* Inputs */
+input { padding:6px 10px; border-radius:6px; border:none; background:#0001; color:var(--text); margin-left:10px; }
 </style>
 </head>
 <body>
@@ -60,6 +89,7 @@ input, select { padding:6px 10px; border-radius:6px; border:none; background:#00
 <header>
   <h1>Crypto Learning Hub</h1>
   <p>Learn crypto trading with interactive tools: Profit/Loss Calculator, USD Converter, Position Size Calculator, and Live Prices.</p>
+  <div class="quote">“Trade smart. Learn fast. Grow your crypto journey.”</div>
 </header>
 
 <!-- Get Started Section -->
@@ -77,12 +107,12 @@ input, select { padding:6px 10px; border-radius:6px; border:none; background:#00
 let allCoins = [];
 let displayedCoins = [];
 
-// Fetch top 10 coins using a free CORS proxy
+// Fetch top 10 coins using free CORS proxy
 fetch('https://api.codetabs.com/v1/proxy?quest=https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50')
   .then(r => r.json())
   .then(data => {
     allCoins = data;
-    displayedCoins = allCoins.slice(0, 10); // show top 10
+    displayedCoins = allCoins.slice(0,10);
     renderCoins(displayedCoins);
   })
   .catch(e => {
@@ -102,7 +132,7 @@ function renderCoins(coins){
   });
 }
 
-// Filter coins by search
+// Filter coins by search input
 function filterCoins(){
   const query = document.getElementById('searchCoin').value.toLowerCase();
   if(!allCoins) return;
