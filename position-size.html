@@ -5,98 +5,280 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Position Size Calculator - Crypto Learning Hub</title>
   <style>
-    :root { --bg:#0d1117; --panel:#161b22; --text:#fff; --accent:#238636; --muted:#8b949e; }
-    body { margin:0; font-family:Arial,sans-serif; background:var(--bg); color:var(--text); padding:20px; min-height:100vh; }
-    nav { background:var(--panel); text-align:center; padding:12px 0; position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.5); }
-    nav a { color:var(--text); margin:0 12px; text-decoration:none; font-weight:500; transition:.3s; }
-    nav a.active { color:var(--accent); font-weight:bold; }
-    nav a:hover { color:#2fa85f; text-decoration:underline; }
-    h1 { color:var(--accent); text-align:center; }
-    .tagline { text-align:center; color:var(--muted); margin-bottom:30px; font-style:italic; }
-    .calculator-card, .price-card { background:var(--panel); padding:20px; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,0.4); margin-bottom:20px; max-width:600px; margin-left:auto; margin-right:auto; }
-    .calculator-card input, .calculator-card select { width:100%; padding:12px; margin:8px 0; border-radius:8px; border:none; background:#0001; color:var(--text); font-size:1rem; }
-    .calculator-card button { width:100%; padding:12px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px; }
+    :root {
+      --bg:#0d1117;
+      --panel:#161b22;
+      --text:#fff;
+      --muted:#8b949e;
+      --accent:#238636;
+    }
+    body { margin:0; font-family:system-ui; background:var(--bg); color:var(--text); }
+    a { text-decoration:none; }
+
+    nav {
+      text-align:center;
+      margin:20px 0;
+    }
+    nav a {
+      display:inline-block;
+      margin:0 10px;
+      padding:10px 18px;
+      border-radius:8px;
+      background:var(--panel);
+      color:var(--text);
+      font-weight:600;
+      transition: all 0.3s ease;
+    }
+    nav a:hover {
+      background:var(--accent);
+      color:#fff;
+      transform:scale(1.05);
+    }
+    nav a.active {
+      background:var(--accent);
+      color:#fff;
+    }
+
+    #livePriceBar {
+      background:var(--panel);
+      padding:10px;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:20px;
+      border-radius:12px;
+      margin:0 20px 30px;
+      max-width:960px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    .coin { font-weight:600; }
+
+    header {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      padding:40px 20px;
+      flex-direction:column;
+    }
+    header h1 { font-size:2.8rem; margin-bottom:10px; color:var(--accent); }
+    .tagline {
+      font-size:1.2rem;
+      color:var(--muted);
+      max-width:700px;
+      margin:0 auto;
+      font-style:italic;
+    }
+
+    .disclaimer {
+      background:#332700;
+      color:#ffcc80;
+      padding:12px 20px;
+      text-align:center;
+      font-size:1rem;
+      border-radius:8px;
+      margin:0 20px 30px;
+      max-width:960px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    .calculator-card {
+      background:var(--panel);
+      padding:24px;
+      border-radius:16px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.4);
+      margin:20px auto;
+      max-width:600px;
+    }
+    .calculator-card input, .calculator-card select {
+      width:100%;
+      padding:12px;
+      margin:10px 0;
+      border-radius:8px;
+      border:none;
+      background:#0001;
+      color:var(--text);
+      font-size:1rem;
+    }
+    .calculator-card button {
+      width:100%;
+      padding:12px;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:10px;
+    }
     .calculator-card button:hover { background:#2fa85f; }
     .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     @media(max-width:640px) { .row { grid-template-columns:1fr; } }
-    #livePrice { font-size:1.2rem; margin-top:12px; color:var(--muted); }
+
+    #result { font-size:1.3rem; font-weight:600; margin-top:20px; text-align:center; line-height:1.5; }
+
+    .learning {
+      background:var(--panel);
+      padding:20px;
+      border-radius:12px;
+      margin:20px auto;
+      max-width:960px;
+      border:1px solid #333;
+    }
+    .learning h3 { color:var(--accent); margin-top:0; }
+
+    footer {
+      text-align:center;
+      padding:20px;
+      font-size:0.9rem;
+      color:var(--muted);
+      border-top:1px solid #222;
+      margin-top:40px;
+    }
   </style>
 </head>
 <body>
 
-  <nav>
-    <a href="index.html">Home</a> |
-    <a href="profit-loss.html">Profit/Loss</a> |
-    <a href="position-size.html" class="active">Position Size</a> |
-    <a href="usd-converter.html">USD Converter</a> |
-    <a href="about.html">About</a> |
-    <a href="contact.html">Contact</a>
-  </nav>
+<nav>
+  <a href="index.html">Home</a>
+  <a href="profit-loss.html">Profit/Loss Calculator</a>
+  <a href="usd-converter.html">USD Converter</a>
+  <a href="position-size.html" class="active">Position Size Calculator</a>
+  <a href="about.html">About</a>
+  <a href="contact.html">Contact</a>
+</nav>
 
-  <h1>Crypto Learning Hub</h1>
-  <p class="tagline">Manage your trades safely with Position Size calculator</p>
+<div id="livePriceBar">
+  <input type="text" id="searchCoin" placeholder="Search coin...">
+  Loading top coins...
+</div>
 
-  <!-- Live Price Card -->
-  <div class="price-card">
-    <h2 style="color:#238636;margin-bottom:12px;">Live Coin Price</h2>
-    <input type="text" id="coinSearch" placeholder="Search coin...">
-    <select id="coinDropdown"></select>
-    <button onclick="fetchPrice()">Check Price</button>
-    <p id="livePrice"></p>
+<header>
+  <h1>Position Size Calculator</h1>
+  <p class="tagline">Calculate how much to trade based on your risk tolerance</p>
+</header>
+
+<div class="disclaimer">
+  ⚠️ Educational tools only — NOT financial advice. Crypto trading involves high risk of total capital loss. Always verify calculations independently and trade responsibly.
+</div>
+
+<div class="calculator-card">
+  <h2>Calculate Safe Position Size</h2>
+  <div class="row">
+    <input type="number" step="any" min="0" id="balance" placeholder="Account Balance (USD)" required>
+    <input type="number" step="any" min="0" max="100" id="riskPercent" placeholder="Risk % per trade (e.g. 1-2)" value="1" required>
   </div>
-
-  <!-- Position Size Calculator -->
-  <div class="calculator-card">
-    <h2>Position Size Calculator</h2>
-    <input type="number" step="any" id="accountBalance" placeholder="Account Balance (USD)">
-    <input type="number" step="any" id="riskPercent" placeholder="Risk %">
-    <input type="number" step="any" id="stopLoss" placeholder="Stop Loss (USD)">
-    <button onclick="calculatePosition()">Calculate</button>
-    <p id="positionResult"></p>
+  <div class="row">
+    <input type="number" step="any" min="0" id="entry" placeholder="Entry Price (USD)" required>
+    <input type="number" step="any" min="0" id="stop" placeholder="Stop-Loss Price (USD)" required>
   </div>
+  <button onclick="calculatePosition()">Calculate</button>
+  <div id="result"></div>
+</div>
+
+<div class="learning">
+  <h3>Quick Guide to Position Sizing</h3>
+  <p>Risk only 1–2% of your account per trade to survive losing streaks.</p>
+  <p>Formula: Position Size (USD) = (Balance × Risk %) / |Entry - Stop| %</p>
+  <p>Then: Coins to buy = Position USD / Entry Price</p>
+  <p>Example: $10,000 account, risk 1% ($100), entry $50,000, stop $48,000 → risk distance 4% → position ~$2,500 USD (~0.05 BTC).</p>
+  <p>Use this before opening trades to avoid over-risking. Adjust for leverage if using futures.</p>
+</div>
+
+<footer>
+  <p>⚠️ Educational purposes only – not financial advice. Use at your own risk.</p>
+  <p>&copy; 2026 Crypto Learning Hub • Contact: <a href="contact.html" style="color:var(--muted);">yasinamin839@gmail.com</a></p>
+</footer>
 
 <script>
+// Live price bar - same as other pages (search fixed)
 let allCoins = [];
+let displayedCoins = [];
+const searchInput = document.getElementById('searchCoin');
+searchInput.addEventListener('input', filterCoins);
 
-// Fetch coins
-fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1')
-  .then(r => r.json())
-  .then(data => { allCoins = data; populateCoinDropdown(allCoins); })
-  .catch(e => console.error('Error fetching coins:', e));
+fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&sparkline=false&price_change_percentage=24h')
+  .then(r => {
+    if (!r.ok) throw new Error('Network response was not ok: ' + r.status);
+    return r.json();
+  })
+  .then(data => {
+    allCoins = data;
+    displayedCoins = allCoins.slice(0, 10);
+    renderCoins(displayedCoins);
+  })
+  .catch(e => {
+    console.error('Fetch error:', e);
+    document.getElementById('livePriceBar').innerHTML += `
+      <div style="color:#ff9800; padding:8px; font-weight:500; text-align:center; width:100%; margin-top:10px;">
+        Failed to load prices: ${e.message || 'API issue'}. Try refreshing.
+      </div>
+    `;
+  });
 
-function populateCoinDropdown(coins) {
-  const dd = document.getElementById('coinDropdown');
-  dd.innerHTML = '';
+function renderCoins(coins) {
+  const bar = document.getElementById('livePriceBar');
+  while (bar.children.length > 1) {
+    if (bar.lastChild !== searchInput) bar.removeChild(bar.lastChild);
+  }
   coins.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = `${c.name} (${c.symbol.toUpperCase()})`;
-    dd.appendChild(opt);
+    const change = c.price_change_percentage_24h;
+    const changeColor = change >= 0 ? '#26a69a' : '#ef5350';
+    const changeText = change >= 0 ? `+${change.toFixed(2)}%` : change.toFixed(2) + '%';
+    let div = document.createElement('div');
+    div.className = 'coin';
+    div.innerHTML = `
+      <span style="font-weight:600;">${c.symbol.toUpperCase()}</span>: 
+      $${c.current_price.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+      <span style="color:${changeColor}; font-size:0.9em; margin-left:6px;">${changeText}</span>
+    `;
+    bar.appendChild(div);
   });
 }
 
-document.getElementById('coinSearch').addEventListener('input', e => {
-  const q = e.target.value.toLowerCase();
-  const filtered = allCoins.filter(c => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q));
-  populateCoinDropdown(filtered);
-});
-
-function fetchPrice() {
-  const coinId = document.getElementById('coinDropdown').value;
-  fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`)
-    .then(r => r.json())
-    .then(d => { document.getElementById('livePrice').innerHTML = `Price: <strong style="color:#238636">$${d[coinId].usd}</strong>`; })
-    .catch(e => { console.error(e); document.getElementById('livePrice').textContent='Unable to fetch price'; });
+function filterCoins() {
+  const query = searchInput.value.toLowerCase();
+  if (!allCoins.length) return;
+  displayedCoins = allCoins.filter(c => 
+    c.name.toLowerCase().includes(query) || c.symbol.toLowerCase().includes(query)
+  );
+  renderCoins(displayedCoins.slice(0, 10));
 }
 
+// Position Size Calculation
 function calculatePosition() {
-  const balance = +document.getElementById('accountBalance').value;
-  const risk = +document.getElementById('riskPercent').value;
-  const stop = +document.getElementById('stopLoss').value;
-  const posSize = (balance * (risk/100)) / stop;
-  document.getElementById('positionResult').innerHTML = `Position Size: <strong style="color:#238636">${posSize.toFixed(4)} units</strong>`;
+  const balance = parseFloat(document.getElementById('balance').value);
+  const riskPercent = parseFloat(document.getElementById('riskPercent').value);
+  const entry = parseFloat(document.getElementById('entry').value);
+  const stop = parseFloat(document.getElementById('stop').value);
+
+  if (isNaN(balance) || isNaN(riskPercent) || isNaN(entry) || isNaN(stop) ||
+      balance <= 0 || riskPercent <= 0 || entry <= 0 || stop <= 0) {
+    document.getElementById('result').innerHTML = '<span style="color:#ff9800;">Please enter valid positive numbers in all fields.</span>';
+    return;
+  }
+
+  const riskAmount = balance * (riskPercent / 100);
+  const priceDistance = Math.abs(entry - stop);
+  const distancePercent = (priceDistance / entry) * 100;
+
+  if (distancePercent === 0) {
+    document.getElementById('result').innerHTML = '<span style="color:#ff9800;">Entry and Stop-Loss cannot be the same.</span>';
+    return;
+  }
+
+  const positionUSD = riskAmount / (distancePercent / 100);
+  const positionCoins = positionUSD / entry;
+
+  document.getElementById('result').innerHTML = `
+    Max Risk Amount: <strong>$${riskAmount.toFixed(2)}</strong><br>
+    Position Size (USD): <strong style="color:var(--accent);">$${positionUSD.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</strong><br>
+    Position Size (coins): <strong style="color:var(--accent);">${positionCoins.toLocaleString(undefined, {minimumFractionDigits:4, maximumFractionDigits:6})}</strong><br>
+    <small>Stop distance: ${distancePercent.toFixed(2)}% • If stopped out, you lose exactly ${riskPercent}% of account</small>
+  `;
 }
 </script>
-
 </body>
 </html>
